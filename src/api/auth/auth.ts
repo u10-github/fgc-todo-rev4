@@ -1,73 +1,108 @@
 import { createClient } from '@supabase/supabase-js'
-import { Request, Response, NextFunction } from 'express'
-import { getUserByEmail, createUser } from '../db/user'
-import { verifyToken } from '../middleware/auth'
+import { NextRequest, NextResponse } from 'next/server'
+import { createUserProfile, getUserProfile } from '../db/user'
+import { OAuth2Client } from 'google-auth-library'
 
 const supabase = createClient(
-  process.env.SUPABASE_URL!, 
-  process.env.SUPABASE_KEY!
+  process.env.NEXT_PUBLIC_SUPABASE_URL!, 
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-export const googleOAuthLogin = async (req: Request, res: Response) => {
-  try {
-    const { credential } = req.body
-    const ticket = await verifyToken(credential)
-    const payload = ticket.getPayload()
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID)
 
-    if (!payload) {
-      return res.status(401).json({ error: 'Invalid credentials' })
+export const verifyGoogleToken = async (token: string) => {
+  try {
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: process.env.GOOGLE_CLIENT_ID
+    })
+    return ticket
+  } catch (error) {
+    console.error('Error verifying token:', error)
+    return null
+  }
+}
+
+export const googleOAuthLogin = async (req: NextRequest) => {
+  try {
+    const { credential } = await req.json()
+    const ticket = await verifyGoogleToken(credential)
+    
+    if (!ticket) {
+      return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })
     }
 
-    const { email, name, picture } = payload
-    let user = await getUserByEmail(email!)
+    const payload = ticket.getPayload()
+    if (!payload || !payload.email) {
+      return NextResponse.json({ error: 'Invalid payload' }, { status: 401 })
+    }
+
+    let user = await getUserProfile(payload.sub!)
 
     if (!user) {
-      user = await createUser({
-        email: email!,
-        name: name!,
-        avatar: picture
+      user = await createUserProfile({
+        email: payload.email,
+        name: payload.name || '',
+        image: payload.picture || ''
       })
+    }
+
+    if (!user) {
+      return NextResponse.json({ error: 'Failed to create user' }, { status: 500 })
     }
 
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: process.env.REDIRECT_URL
+        redirectTo: process.env.NEXTAUTH_URL
       }
     })
 
     if (error) {
-      return res.status(500).json({ error: error.message })
+      return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    res.status(200).json({ 
+    return NextResponse.json({ 
       user, 
-      session: data.session 
+      session: data
     })
   } catch (error) {
-    res.status(500).json({ error: error.message })
+    const message = error instanceof Error ? error.message : 'An error occurred'
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }
 
-export const logout = async (req: Request, res: Response) => {
+export const logout = async () => {
   try {
-    await supabase.auth.signOut()
-    res.status(200).json({ message: 'Logged out successfully' })
-  } catch (error) {
-    res.status(500).json({ error: error.message })
-  }
-}
-
-export const getCurrentUser = async (req: Request, res: Response) => {
-  try {
-    const { data: { user } } = await supabase.auth.getUser()
+    const { error } = await supabase.auth.signOut()
     
-    if (!user) {
-      return res.status(401).json({ error: 'Not authenticated' })
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    res.status(200).json(user)
+    return NextResponse.json({ message: 'Logged out successfully' })
   } catch (error) {
-    res.status(500).json({ error: error.message })
+    const message = error instanceof Error ? error.message : 'An error occurred'
+    return NextResponse.json({ error: message }, { status: 500 })
+  }
+}
+
+export const getCurrentUser = async () => {
+  try {
+    const { data: { user }, error } = await supabase.auth.getUser()
+    
+    if (error || !user) {
+      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
+    }
+
+    const profile = await getUserProfile(user.id)
+    if (!profile) {
+      return NextResponse.json({ error: 'User profile not found' }, { status: 404 })
+    }
+
+    return NextResponse.json(profile)
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'An error occurred'
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }
