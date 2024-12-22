@@ -2,12 +2,14 @@ import NextAuth from "next-auth"
 import GoogleProvider from "next-auth/providers/google"
 import { SupabaseAdapter } from "@auth/supabase-adapter"
 import type { NextAuthConfig } from "next-auth"
+import type { Session } from "next-auth"
+import type { AdapterUser } from "@auth/core/adapters"
 
 if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
   throw new Error('Missing env.SUPABASE_SERVICE_ROLE_KEY')
 }
 
-const config = {
+const config: NextAuthConfig = {
   adapter: SupabaseAdapter({
     url: process.env.NEXT_PUBLIC_SUPABASE_URL!,
     secret: process.env.SUPABASE_SERVICE_ROLE_KEY,
@@ -19,7 +21,7 @@ const config = {
     }),
   ],
   callbacks: {
-    session: async ({ session, user }) => {
+    session: async ({ session, user }: { session: Session, user: AdapterUser }) => {
       if (session?.user) {
         session.user.id = user.id;
       }
@@ -29,8 +31,7 @@ const config = {
   pages: {
     signIn: '/login',
   },
-} satisfies NextAuthConfig
+}
 
-const { auth } = NextAuth(config)
- 
-export { auth as GET, auth as POST } 
+const handler = NextAuth(config)
+export { handler as GET, handler as POST } 
