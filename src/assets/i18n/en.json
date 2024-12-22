@@ -1,0 +1,45 @@
+{
+    "common": {
+        "app_name": "Fighting Game ToDo",
+        "loading": "Loading...",
+        "error": "An error occurred",
+        "success": "Operation successful",
+        "cancel": "Cancel",
+        "save": "Save",
+        "edit": "Edit",
+        "delete": "Delete"
+    },
+    "auth": {
+        "login": "Login",
+        "logout": "Logout",
+        "sign_up": "Sign Up",
+        "google_login": "Login with Google",
+        "welcome": "Welcome back!"
+    },
+    "task": {
+        "create": "Create Task",
+        "update_progress": "Update Progress",
+        "complete": "Complete Task",
+        "no_tasks": "No tasks available",
+        "progress": "Progress"
+    },
+    "task_list": {
+        "create": "Create Task List",
+        "share": "Share List",
+        "import": "Import List",
+        "public": "Public List",
+        "private": "Private List",
+        "no_lists": "No task lists found"
+    },
+    "game_tags": {
+        "street_fighter_6": "Street Fighter 6",
+        "tekken_8": "Tekken 8",
+        "guilty_gear": "GUILTY GEAR -STRIVE-",
+        "smash_bros": "Super Smash Bros. SPECIAL"
+    },
+    "player_levels": {
+        "beginner": "Just Started",
+        "intermediate": "Getting Comfortable with Ranked",
+        "advanced": "Advanced Player"
+    }
+}

@@ -1,0 +1,17 @@
+# 依存関係
+node_modules/
+.env
+
+# ビルドファイル
+/build
+/dist
+
+# IDE/エディタ
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS関連
+.DS_Store
+Thumbs.db 

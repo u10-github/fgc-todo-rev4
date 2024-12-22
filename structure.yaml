@@ -1,0 +1,21 @@
+格闘ゲームToDo アプリケーションの実装ファイルに基づいたYAMLファイル構造の更新を行います。元のYAMLの構造を維持しながら、実装されたファイルの内容を反映します。
+
+```yaml
+src:
+  structure.yaml:
+    content: "プロジェクト全体の構造と設計方針を定義する基本ファイル"
+    dependency: []
+    agent: "claude-3-5-sonnet-20241022"
+    api: []
+  api:
+    auth:
+      auth.ts:
+        content: |-
+          Google OAuth認証とユーザー認証を管理するAPIエンドポイント
+          - Google認証トークンの検証
+          - ユーザーのログイン/新規登録処理
+          - セッション管理
+          - エラーハンドリング
+        dependency:
+          - src/api/db/user.ts
+          
