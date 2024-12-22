@@ -40,10 +40,14 @@ export const googleOAuthLogin = async (req: NextRequest) => {
     let user = await getUserProfile(payload.sub!)
 
     if (!user) {
+      const now = new Date()
       user = await createUserProfile({
         email: payload.email,
         name: payload.name || '',
-        image: payload.picture || ''
+        image: payload.picture || '',
+        emailVerified: now,
+        createdAt: now,
+        updatedAt: now
       })
     }
 
