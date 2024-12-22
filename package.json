@@ -2,6 +2,9 @@
   "name": "fcg-todo-rev4",
   "version": "1.0.0",
   "description": "格闘ゲーマー向けタスク管理アプリケーション",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && next build",
