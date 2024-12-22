@@ -1,21 +1,54 @@
 格闘ゲームToDo アプリケーションの実装ファイルに基づいたYAMLファイル構造の更新を行います。元のYAMLの構造を維持しながら、実装されたファイルの内容を反映します。
 
 ```yaml
-src:
-  structure.yaml:
-    content: "プロジェクト全体の構造と設計方針を定義する基本ファイル"
-    dependency: []
-    agent: "claude-3-5-sonnet-20241022"
-    api: []
-  api:
-    auth:
-      auth.ts:
-        content: |-
-          Google OAuth認証とユーザー認証を管理するAPIエンドポイント
-          - Google認証トークンの検証
-          - ユーザーのログイン/新規登録処理
-          - セッション管理
-          - エラーハンドリング
-        dependency:
-          - src/api/db/user.ts
-          
+root:
+  - .env                    # 環境変数
+  - .env.production        # 本番環境用の環境変数
+  - .gitignore             # Gitの除外設定
+  - .nvmrc                 # Node.jsバージョン指定
+  - package.json           # プロジェクト設定
+  - README.md              # プロジェクト説明
+  - structure.yaml         # プロジェクト構造
+  - tailwind.config.js     # Tailwind CSS設定
+  - tsconfig.json          # TypeScript設定
+  src/:
+    api/:
+      auth/:
+        auth.ts            # 認証関連のAPI
+      db/:
+        index.ts          # Supabaseクライアント設定
+        task.ts           # タスク操作のユーティリティ
+        types.ts          # データベースの型定義
+        user.ts           # ユーザー操作のユーティリティ
+    app/:
+      api/:
+        auth/:
+          [...nextauth]/:
+            route.ts      # NextAuth.js設定
+        tasks/:
+          [id].ts        # タスク個別操作API
+          index.ts       # タスク一覧操作API
+      login/:
+        page.tsx         # ログインページ
+      globals.css        # グローバルスタイル
+      layout.tsx         # レイアウトコンポーネント
+      page.tsx          # トップページ
+      providers.tsx     # プロバイダーコンポーネント
+    lib/:
+      prisma.ts         # Prismaクライアント
+      supabase.ts       # Supabaseクライアント
+    types/:
+      next-auth.d.ts    # NextAuth型定義
+  prisma/:
+    schema.prisma       # データベーススキーマ
+
+説明:
+- src/api/: バックエンド関連のコード
+  - auth/: 認証関連の処理
+  - db/: データベース操作のユーティリティ
+- src/app/: Next.jsのApp Router
+  - api/: APIルート
+  - login/: ログインページ
+- src/lib/: 共通ライブラリ
+- src/types/: 型定義
+- prisma/: Prisma関連
